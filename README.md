@@ -1,15 +1,15 @@
-<div id="welcome-prompt" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
-    <div style="background:white; padding:30px; border-radius:15px; text-align:center; max-width:400px; border:3px solid #28a745;">
-        <h2 style="color:#0062cc;">Polai Academy</h2>
-        <h3 style="margin:15px 0;">Noun Mock Test</h3>
-        <ul style="text-align:left; margin-bottom:20px; font-size:14px;">
-            <li><strong>Total Questions:</strong> 13 [cite: 1, 147]</li>
-            <li><strong>Time:</strong> 15 Minutes</li>
-            <li><strong>Marking:</strong> +2 for Correct, -1 for Wrong</li>
+<div class="hero-section" style="background: linear-gradient(135deg, #0062cc, #28a745); padding: 50px 20px; text-align: center; color: white; border-radius: 15px; margin: 20px;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Polai Academy Mock Test</h1>
+    <p style="font-size: 1.2rem; margin-bottom: 30px;">Special Grammar Series: Spot the Error (Noun & S-V Agreement)</p>
+    
+    <div style="background: rgba(255,255,255,0.15); display: inline-block; padding: 20px 40px; border-radius: 10px; backdrop-filter: blur(5px);">
+        <ul style="text-align: left; list-style: none; padding: 0; margin-bottom: 20px;">
+            <li>✅ <strong>Questions:</strong> 13 MCQs [cite: 1, 22, 44, 75, 100, 127, 147, 178, 209, 253, 282, 304, 349]</li>
+            <li>✅ <strong>Time:</strong> 15 Minutes</li>
+            <li>✅ <strong>Marking:</strong> +2 for Correct | -1 for Wrong</li>
         </ul>
-        <button onclick="document.getElementById('welcome-prompt').style.display='none'; startTimer();" 
-                style="background:#28a745; color:white; border:none; padding:12px 25px; border-radius:5px; cursor:pointer; font-weight:bold;">
-            START TEST NOW
+        <button style="background: #ffc107; color: #333; border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; transition: 0.3s;">
+            START MOCK TEST 🚀
         </button>
     </div>
 </div>
