@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polai Academy - Grammar Mock Test</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0062cc, #28a745);
+            --bg-color: #f4f7f6;
+            --text-dark: #333;
+            --white: #ffffff;
+            --gray: #e0e0e0;
+            --attempted: #28a745;
+            --unattempted: #ffc107;
+            --wrong: #dc3545;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-dark); height: 100vh; overflow: hidden; }
+
+        /* Header */
+        header {
+            background: var(--primary-gradient);
+            color: var(--white);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #timer { font-weight: bold; font-size: 1.2rem; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 5px; }
+
+        /* Main Layout */
+        .main-container { display: flex; height: calc(100vh - 60px); }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--white);
+            border-left: 1px solid var(--gray);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 0.9rem; }
+        .stat-box { padding: 10px; border-radius: 5px; text-align: center; color: white; }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .q-btn {
+            width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--gray);
+            background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .q-btn.active { border: 2px solid #0062cc; font-weight: bold; }
+        .q-btn.attempted { background: var(--attempted); color: white; border-color: var(--attempted); }
+
+        /* Question Area */
+        .content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        .question-card { background: var(--white); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .question-text { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.6; font-weight: 500; }
+
+        .options-container { display: flex; flex-direction: column; gap: 15px; }
+        .option {
+            padding: 15px 20px; border: 1px solid var(--gray); border-radius: 8px;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+        }
+        .option:hover { background: #f0f7ff; border-color: #0062cc; }
+        .option.selected { background: #e7f1ff; border-color: #0062cc; border-width: 2px; }
+
+        /* Footer Buttons */
+        .nav-btns { margin-top: auto; padding-top: 30px; display: flex; justify-content: space-between; }
+        button {
+            padding: 12px 30px; border-radius: 5px; border: none; cursor: pointer;
+            font-weight: bold; transition: 0.3s;
+        }
+        .btn-prev { background: #6c757d; color: white; }
+        .btn-next { background: #007bff; color: white; }
+        .btn-submit { background: var(--attempted); color: white; }
+
+        /* Result Page */
+        .result-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--white); z-index: 100; overflow-y: auto; padding: 40px 20px; text-align: center;
+        }
+        .score-circle {
+            width: 150px; height: 150px; border-radius: 50%; border: 8px solid #28a745;
+            margin: 20px auto; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; font-weight: bold;
+        }
+        .result-table { max-width: 600px; margin: 30px auto; width: 100%; border-collapse: collapse; }
+        .result-table td { padding: 15px; border-bottom: 1px solid var(--gray); text-align: left; }
+        
+        /* Ending Screen */
+        .ending-content { margin-top: 50px; padding: 30px; border-top: 2px solid var(--gray); }
+        .yt-btn {
+            background: #ff0000; color: white; padding: 15px 30px; text-decoration: none;
+            border-radius: 30px; display: inline-block; margin: 20px 0; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255,0,0,0.3); animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--gray); }
+            .grid { grid-template-columns: repeat(7, 1fr); }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Polai Academy Mock Test</h2>
+        <div id="timer">Time Left: 15:00</div>
+    </header>
+
+    <div class="main-container" id="quiz-container">
+        <div class="content">
+            <div class="question-card" id="q-card">
+                <div class="question-text" id="q-text">Loading question...</div>
+                <div class="options-container" id="options"></div>
+            </div>
+            <div class="nav-btns">
+                <button class="btn-prev" onclick="changeQuestion(-1)">Previous</button>
+                <button class="btn-submit" onclick="showResult()">Submit Test</button>
+                <button class="btn-next" onclick="changeQuestion(1)">Next</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Question Palette</h3>
+            <div class="stats">
+                <div class="stat-box" style="background: var(--attempted)">Attempted: <span id="stat-att">0</span></div>
+                <div class="stat-box" style="background: #6c757d">Left: <span id="stat-left">13</span></div>
+            </div>
+            <div class="grid" id="q-grid"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+        <h1 style="color: #0062cc;">Test Report Card</h1>
+        <div class="score-circle">
+            <span id="res-score" style="font-size: 2rem;">0</span>
+            <span>Total Marks</span>
+        </div>
+        <p id="res-msg" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;"></p>
+        
+        <table class="result-table">
+            <tr><td>Total Questions</td><td id="res-total">13</td></tr>
+            <tr><td>Correct Answers</td><td id="res-corr" style="color: green;">0</td></tr>
+            <tr><td>Wrong Answers</td><td id="res-wrong" style="color: red;">0</td></tr>
+            <tr><td>Not Attempted</td><td id="res-na">0</td></tr>
+            <tr><td>Percentage</td><td id="res-per">0%</td></tr>
+        </table>
+
+        <div class="ending-content">
+            <h2>THANK YOU FOR ATTEMPTING!</h2>
+            <a href="https://youtube.com/@polaiacademy?si=25H08XO7LiwqKgrT" target="_blank" class="yt-btn">
+                SUBSCRIBE TO POLAI ACADEMY 🔔
+            </a>
+            <p>Click LIKE 👍 if you enjoyed the test!</p>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Mr. Ram Kumar, the cashier are / on temporary withdrawal / from service.", a: ["On temporary withdrawal", "Mr. Ram Kumar, the cashier are", "From service", "No error"], correct: 1 },
+            { q: "Without the greenhouse effect, / Earth temperature would be below freezing.", a: ["Earths temperature would", "Be below freezing", "Without the greenhouse effect", "No error"], correct: 0 },
+            { q: "Peoples might confess / just to get out of / the interrogation room.", a: ["No error", "Peoples might confess", "Just to get out of", "The interrogation room"], correct: 1 },
+            { q: "Many female mammals, including rabbits and cats ovulate / only when they mate.", a: ["No error", "Many female mammals", "Only when they mate", "Including rabbits and cats, ovulate"], correct: 3 },
+            { q: "The baby's faces are expressionless and / their pupils aren't visible...", a: ["No error", "Appearance of lifelessness", "Pupils aren't visible", "The baby's faces are expressionless"], correct: 3 },
+            { q: "Balloons filled with helium / travel hundreds or / even thousands of mile.", a: ["Balloons filled with", "Travel hundreds or", "No error", "Even thousands of mile"], correct: 3 },
+            { q: "And so for the sakes / of his son he remained / absolutely calm.", a: ["Absolutely calm", "No error", "Of his son he remained", "And so for the sakes"], correct: 3 },
+            { q: "Workers and companies in all / sectors can contribute their skills / to meet society new needs.", a: ["Sectors can contribute", "No error", "To meet society new needs", "Workers and companies"], correct: 2 },
+            { q: "Whatever a writer puts / into a story probably comes with / his own life experience.", a: ["With his own life experience", "No error", "Into a story probably comes", "Whatever a writer puts"], correct: 0 },
+            { q: "Hundreds of migrants work in private firms in Erode.", a: ["Firms in Erode", "No error", "Hundreds of migrants", "Work in private"], correct: 1 },
+            { q: "My friend Jatin usually wears a spectacle.", a: ["My friend Jatin", "Usually wears", "A spectacle", "No error"], correct: 2 },
+            { q: "Uttar Pradesh accounts for about 16 per cent / of the country population.", a: ["Of the", "Country population", "Uttar Pradesh", "Accounts for..."], correct: 1 },
+            { q: "Telecom is one of the Indias globally recognised success stories.", a: ["Recognised success", "Telecom is one of", "No error", "Indias globally"], correct: 3 }
+        ];
+
+        let currentIdx = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let timeLeft = 15 * 60;
+
+        function init() {
+            renderQuestion();
+            renderGrid();
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            const countdown = setInterval(() => {
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                timerEl.textContent = `Time Left: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    showResult();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('q-text').textContent = `Q${currentIdx + 1}. ${q.q}`;
+            const optionsEl = document.getElementById('options');
+            optionsEl.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = `option ${userAnswers[currentIdx] === i ? 'selected' : ''}`;
+                div.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> &nbsp; ${opt}`;
+                div.onclick = () => selectOption(i);
+                optionsEl.appendChild(div);
+            });
+            updateSidebarHighlight();
+        }
+
+        function selectOption(i) {
+            userAnswers[currentIdx] = i;
+            renderQuestion();
+            renderGrid();
+            updateStats();
+        }
+
+        function changeQuestion(step) {
+            currentIdx += step;
+            if (currentIdx < 0) currentIdx = 0;
+            if (currentIdx >= questions.length) currentIdx = questions.length - 1;
+            renderQuestion();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('q-grid');
+            grid.innerHTML = '';
+            questions.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = `q-btn ${userAnswers[i] !== null ? 'attempted' : ''} ${currentIdx === i ? 'active' : ''}`;
+                btn.textContent = i + 1;
+                btn.onclick = () => { currentIdx = i; renderQuestion(); };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateStats() {
+            const att = userAnswers.filter(a => a !== null).length;
+            document.getElementById('stat-att').textContent = att;
+            document.getElementById('stat-left').textContent = questions.length - att;
+        }
+
+        function updateSidebarHighlight() {
+            const btns = document.querySelectorAll('.q-btn');
+            btns.forEach((b, i) => {
+                b.classList.remove('active');
+                if(i === currentIdx) b.classList.add('active');
+            });
+        }
+
+        function showResult() {
+            let correct = 0, wrong = 0, na = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === null) na++;
+                else if (ans === questions[i].correct) correct++;
+                else wrong++;
+            });
+
+            const score = (correct * 2) - (wrong * 1);
+            const percentage = ((correct / questions.length) * 100).toFixed(1);
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            
+            document.getElementById('res-score').textContent = score;
+            document.getElementById('res-corr').textContent = correct;
+            document.getElementById('res-wrong').textContent = wrong;
+            document.getElementById('res-na').textContent = na;
+            document.getElementById('res-per').textContent = percentage + '%';
+
+            let msg = "Keep Practicing!";
+            if(percentage > 80) msg = "Excellent Performance!";
+            else if(percentage > 50) msg = "Good Job! Can improve.";
+            document.getElementById('res-msg').textContent = msg;
+        }
+
+        init();
+    </script>
+</body>
+</html>
